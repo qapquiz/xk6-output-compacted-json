@@ -48,6 +48,7 @@ func init() {
 }
 
 func New(params output.Params) (output.Output, error) {
+  filePath = params.ConfigArgument
 	return &Logger{params.StdOut}, nil
 }
 
