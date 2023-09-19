@@ -48,7 +48,7 @@ func init() {
 }
 
 func New(params output.Params) (output.Output, error) {
-  filePath = params.ConfigArgument
+	filePath = params.ConfigArgument
 	return &Logger{params.StdOut}, nil
 }
 
@@ -118,14 +118,18 @@ func AggregateSamples(samples []metrics.Sample) {
 
 func Percentile(percentile float64, xs []float64) float64 {
 	sort.Float64s(xs)
-	kPercentMultiplyByN := percentile * float64(len(xs))
-	index := int(math.Ceil(kPercentMultiplyByN))
+	position95th := (percentile * float64(len(xs)-1)) + 1.0
 
-	if math.Mod(kPercentMultiplyByN, 1) == 0 {
-		return (xs[index] + xs[index+1]) / 2.0
+	if math.Mod(position95th, 1) == 0 {
+		index := int(position95th - 1)
+		return xs[index]
 	}
 
-	return xs[index]
+	integerPart := math.Floor(position95th)
+	fractionalPart := position95th - integerPart
+
+	indexIntegerPart := int(integerPart) - 1
+	return xs[indexIntegerPart] + fractionalPart*(xs[indexIntegerPart+1]-xs[indexIntegerPart])
 }
 
 // Stop implements output.Output.
